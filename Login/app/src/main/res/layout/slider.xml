@@ -26,21 +26,46 @@
         android:textStyle="bold" />
 
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="355dp"
-        android:layout_marginTop="30dp" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:text="Button" />
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
 
 
-    />
+        <ToggleButton
+            android:id="@+id/price_count"
+
+
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="right"
+            android:layout_marginTop="60dp"
+            android:layout_marginRight="10dp"
+
+            android:layout_weight="10"
+            android:background="@drawable/empty"
+
+            android:textOff=""
+            android:textOn="" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="352dp"
+            android:layout_marginTop="20dp"
+
+            />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:text="Button" />
+
+
+
+
+    </FrameLayout>
 
 
 </LinearLayout>

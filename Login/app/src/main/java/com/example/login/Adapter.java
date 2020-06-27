@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
@@ -66,7 +68,20 @@ public class Adapter extends PagerAdapter {
            }
        });
 
+        final ToggleButton tb = (ToggleButton)v.findViewById(R.id.price_count);
+        tb.setOnClickListener(new View.OnClickListener() {
 
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                if(tb.isChecked()){
+                    tb.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.fill));
+                    Toast.makeText(context, "토글눌렀어1", Toast.LENGTH_LONG);
+                }else{
+                    tb.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.empty));
+                    Toast.makeText(context, "토글눌렀어2", Toast.LENGTH_LONG);
+                }
+            }
+        });
 
 
         container.addView(v);
