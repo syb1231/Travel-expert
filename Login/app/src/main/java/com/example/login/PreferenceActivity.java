@@ -2,7 +2,9 @@ package com.example.login;
 
 
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +30,17 @@ public class PreferenceActivity extends AppCompatActivity {
          super.onCreate(savedInstanceState);
          setContentView(R.layout.activity_preference);
          viewPager =(ViewPager) findViewById(R.id.view);
+
+         /* 내장 디비 */
+         SQLiteDatabase db;
+         ContentValues row;
+         DatabaseHandler handler = new DatabaseHandler(this);
+         db = handler.getWritableDatabase();
+         row = new ContentValues();
+         row.put("_id", 1);
+         row.put("code", 2);
+         db.replace("pref", null, row);
+         handler.close();
 
          adapter = new Adapter(this);
          viewPager.setAdapter(adapter);

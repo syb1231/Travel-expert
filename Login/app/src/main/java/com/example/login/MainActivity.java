@@ -5,6 +5,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -14,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,10 +27,12 @@ import com.kakao.usermgmt.UserManagement;
 import com.kakao.usermgmt.callback.LogoutResponseCallback;
 import com.kakao.usermgmt.callback.UnLinkResponseCallback;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -38,18 +43,53 @@ import java.net.URL;
 public class MainActivity extends AppCompatActivity implements LocationListener {
 
     String msg;
+    ListView listView;
+    BoardAdapter adapter;
+    DatabaseHandler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-// 전역변수 값 받아오기
+
+        /* 내장 디비 pref 받아오기 */
+        SQLiteDatabase db;
+        handler = new DatabaseHandler(this);
+
+        db = handler.getReadableDatabase();
+        Cursor cursor = db.query("pref", new String[] {"code"}, null, null, null, null, null);
+
+        String code = "";
+        while(cursor.moveToNext()){
+            code = cursor.getString(0);
+        }
+
+        System.out.println("asd: " + code);
+
+        cursor.close();
+        handler.close();
+
+        // 전역변수 값 받아오기
         String globalstrNickname=App.getInstance().getstrNickname();
         String globalstrProfile=App.getInstance().getstrProfile();
         String globalstrEmail=App.getInstance().getstrEmail();
         String globalstrAgeRange=App.getInstance().getstrAgeRange();
         String globalstrGender=App.getInstance().getstrGender();
+
+        listView = findViewById(R.id.board_listView);
+        adapter = new BoardAdapter();
+        listView.setAdapter(adapter);
+
+//        adapter.addItem("asdas", "asdasd", "aasdasd");
+//        adapter.addItem("a12sdas", "asddsa", "asdasdasd");
+//        adapter.addItem("as232das", "asdas", "aasasasdsaddasd");
+//        adapter.addItem("232", "asdsa", "asdsad");
+//        adapter.addItem("323", "asdasd", "asdsad");
+
+
+
+
 
         locationListener.onLocationChanged(getLocation());
         if(msg==null)
@@ -57,25 +97,52 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         else
             Toast.makeText(getApplicationContext(),  msg, Toast.LENGTH_LONG).show();
         Button btnLogout=findViewById(R.id.btnLogout);
+
+
         btnLogout.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //   Toast.makeText(getApplicationContext(),App.getInstance().getstrNickname()+"ddd", Toast.LENGTH_LONG).show();
-                Toast.makeText(getApplicationContext(), "정상적으로 로그아웃되었습니다.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), "정상적으로 로그아웃되었습니다.", Toast.LENGTH_SHORT).show();
+//
+//                UserManagement.getInstance().requestLogout(new LogoutResponseCallback() {
+//                    @Override
+//                    public void onCompleteLogout() {
+//                        Intent intent=new Intent(MainActivity.this, LoginActivity.class);
+//                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                        startActivity(intent);
+//                    }
+//                });
 
-                UserManagement.getInstance().requestLogout(new LogoutResponseCallback() {
-                    @Override
-                    public void onCompleteLogout() {
-                        Intent intent=new Intent(MainActivity.this, LoginActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
+                try {
+                    String result = new HTTPLoadBoard().execute().get();
+
+                    JSONArray arr = new JSONArray(result);
+
+                    for(int i=0; i<arr.length(); i++){
+                        JSONObject object = arr.getJSONObject(i);
+
+                        int id = object.getInt("id");
+                        String title = object.getString("title");
+                        String image = object.getString("image");
+                        String body = object.getString("body");
+                        int pref = object.getInt("pref");
+
+
+                        adapter.addItem(title, image, body);
+                        adapter.notifyDataSetChanged();
+
                     }
-                });
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
-
     }
 
+
+    /* 날씨 */
     LocationManager locationManager;
     // 현재 GPS 사용유무
     boolean isGPSEnabled=false;
@@ -321,7 +388,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         return "";
     }
 
-
     @Override
     public void onLocationChanged(Location location) {
 
@@ -340,6 +406,76 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     @Override
     public void onProviderDisabled(String provider) {
 
+    }
+
+    public String getPref() {
+        /* 내장 디비 pref 받아오기 */
+        SQLiteDatabase db;
+        handler = new DatabaseHandler(this);
+
+        db = handler.getReadableDatabase();
+        Cursor cursor = db.query("pref", new String[] {"code"}, null, null, null, null, null);
+
+        String pref = "";
+        while(cursor.moveToNext()){
+            pref = cursor.getString(0);
+        }
+
+        System.out.println("asd: " + pref);
+
+        cursor.close();
+        handler.close();
+
+        return pref;
+    }
+
+    private class HTTPLoadBoard extends AsyncTask<Void, Void, String> {
+
+        private String url = "http://155.230.249.243:3000/board/loadAll/";
+
+        @Override
+        protected String doInBackground(Void... voids) {
+
+            String pref = getPref();
+
+            String result = "";
+
+            try {
+                URL url = new URL(this.url + pref);
+
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestMethod("GET");
+
+                conn.setDoInput(true);
+
+                if(conn.getResponseCode() == 200) {
+
+                    InputStream is = conn.getInputStream();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    byte[] byteBuffer = new byte[1024];
+                    byte[] byteData = null;
+                    int nLength = 0;
+                    while((nLength = is.read(byteBuffer, 0, byteBuffer.length)) != -1) {
+                        baos.write(byteBuffer, 0, nLength);
+                    }
+                    byteData = baos.toByteArray();
+
+                    result = new String(byteData);
+
+                } else {
+                    result = "Fail";
+                }
+
+                conn.disconnect();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return result;
+        }
     }
 }
 
