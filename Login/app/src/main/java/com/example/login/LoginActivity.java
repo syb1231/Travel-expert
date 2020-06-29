@@ -1,5 +1,6 @@
 package com.example.login;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -48,6 +49,7 @@ public class LoginActivity extends AppCompatActivity {
                         JSONObject jsonObject =new JSONObject((response));
                         boolean success = jsonObject.getBoolean("success");
                         if(success) {
+                            //서버로 전송
 
                             Toast.makeText(getApplicationContext(), "여행어떄 에 가입하신 것을 환엽합니다!", Toast.LENGTH_LONG).show();
                         }
@@ -178,7 +180,7 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(String response) {
                                 try{
-                                    JSONObject jsonObject =new JSONObject((response));
+                                    JSONObject jsonObject =new JSONObject(response);
                                     boolean success = jsonObject.getBoolean("success");
                                     if(success) {
 

@@ -30,18 +30,6 @@ public class PreferenceActivity extends AppCompatActivity {
          super.onCreate(savedInstanceState);
          setContentView(R.layout.activity_preference);
          viewPager =(ViewPager) findViewById(R.id.view);
-
-         /* 내장 디비 */
-         SQLiteDatabase db;
-         ContentValues row;
-         DatabaseHandler handler = new DatabaseHandler(this);
-         db = handler.getWritableDatabase();
-         row = new ContentValues();
-         row.put("_id", 1);
-         row.put("code", 2);
-         db.replace("pref", null, row);
-         handler.close();
-
          adapter = new Adapter(this);
          viewPager.setAdapter(adapter);
 
@@ -53,6 +41,17 @@ public class PreferenceActivity extends AppCompatActivity {
          strEmail = intent.getStringExtra("email");
          strAgeRange = intent.getStringExtra("ageRange");
          strGender = intent.getStringExtra("gender");
+
+         /* 내장 디비 */
+         SQLiteDatabase db;
+         ContentValues row;
+         DatabaseHandler handler = new DatabaseHandler(this);
+         db = handler.getWritableDatabase();
+         row = new ContentValues();
+         row.put("userid", strNickname);
+         row.put("code", 2); //선호하는 그림 눌렀을때
+         db.replace("userinfo", null, row);
+         handler.close();
 
 // 전역변수 설정
          App.getInstance().setstrNickname(strNickname);

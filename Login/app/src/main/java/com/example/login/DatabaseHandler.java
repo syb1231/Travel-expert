@@ -17,12 +17,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE pref (_id INTEGER PRIMARY KEY, code INTEGER);");
+        db.execSQL("CREATE TABLE userinfo (userid TEXT PRIMARY KEY, code INTEGER);");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS login");
+        db.execSQL("DROP TABLE IF EXISTS userinfo");
         onCreate(db);
     }
 }

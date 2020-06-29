@@ -58,14 +58,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         handler = new DatabaseHandler(this);
 
         db = handler.getReadableDatabase();
-        Cursor cursor = db.query("pref", new String[] {"code"}, null, null, null, null, null);
+        Cursor cursor = db.query("userinfo", new String[] {"userid", "code"}, null, null, null, null, null);
 
+        String userid = "";
         String code = "";
         while(cursor.moveToNext()){
-            code = cursor.getString(0);
+            userid = cursor.getString(0);
+            code = cursor.getString(1);
         }
 
-        System.out.println("asd: " + code);
+        System.out.println("userid :" + userid + "code: " + code);
 
         cursor.close();
         handler.close();
@@ -87,16 +89,34 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 //        adapter.addItem("232", "asdsa", "asdsad");
 //        adapter.addItem("323", "asdasd", "asdsad");
 
-
-
-
-
         locationListener.onLocationChanged(getLocation());
         if(msg==null)
             Toast.makeText(getApplicationContext(), "내용없음.", Toast.LENGTH_LONG).show();
         else
             Toast.makeText(getApplicationContext(),  msg, Toast.LENGTH_LONG).show();
         Button btnLogout=findViewById(R.id.btnLogout);
+
+        try {
+            String result = new HTTPLoadBoard().execute().get();
+
+            JSONArray arr = new JSONArray(result);
+
+            for(int i=0; i<arr.length(); i++){
+                JSONObject object = arr.getJSONObject(i);
+
+                int id = object.getInt("id");
+                String title = object.getString("title");
+                String image = object.getString("image");
+                String body = object.getString("body");
+                int pref = object.getInt("pref");
+
+                adapter.addItem(title, image, body);
+            }
+            adapter.notifyDataSetChanged();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
         btnLogout.setOnClickListener(new Button.OnClickListener() {
@@ -113,30 +133,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 //                        startActivity(intent);
 //                    }
 //                });
-
-                try {
-                    String result = new HTTPLoadBoard().execute().get();
-
-                    JSONArray arr = new JSONArray(result);
-
-                    for(int i=0; i<arr.length(); i++){
-                        JSONObject object = arr.getJSONObject(i);
-
-                        int id = object.getInt("id");
-                        String title = object.getString("title");
-                        String image = object.getString("image");
-                        String body = object.getString("body");
-                        int pref = object.getInt("pref");
-
-
-                        adapter.addItem(title, image, body);
-                        adapter.notifyDataSetChanged();
-
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
             }
         });
     }
@@ -414,7 +410,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         handler = new DatabaseHandler(this);
 
         db = handler.getReadableDatabase();
-        Cursor cursor = db.query("pref", new String[] {"code"}, null, null, null, null, null);
+        Cursor cursor = db.query("userinfo", new String[] {"code"}, null, null, null, null, null);
 
         String pref = "";
         while(cursor.moveToNext()){
@@ -431,7 +427,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     private class HTTPLoadBoard extends AsyncTask<Void, Void, String> {
 
-        private String url = "http://155.230.249.243:3000/board/loadAll/";
+        private String url = "http://172.30.1.42:3000/board/loadAll/";
 
         @Override
         protected String doInBackground(Void... voids) {
