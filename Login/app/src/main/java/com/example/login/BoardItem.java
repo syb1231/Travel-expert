@@ -2,9 +2,18 @@ package com.example.login;
 
 public class BoardItem {
 
+    String id;
     String title;
     String imageSrc;
     String body;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id=id;
+    }
 
     public String getTitle() {
         return title;

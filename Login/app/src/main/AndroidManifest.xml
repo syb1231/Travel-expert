@@ -34,6 +34,9 @@
         <activity android:name=".PreferenceActivity">
         </activity>
 
+        <activity android:name=".ReplyActivity">
+        </activity>
+
 
 
 

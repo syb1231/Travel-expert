@@ -13,14 +13,22 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+
+import com.kakao.usermgmt.UserManagement;
+import com.kakao.usermgmt.callback.LogoutResponseCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -89,13 +97,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             for(int i=0; i<arr.length(); i++){
                 JSONObject object = arr.getJSONObject(i);
 
-                int id = object.getInt("id");
+                String id = object.getString("id");
                 String title = object.getString("title");
                 String image = object.getString("image");
                 String body = object.getString("body");
                 int pref = object.getInt("pref");
 
-                adapter.addItem(title, image, body);
+                adapter.addItem(id, title, image, body);
             }
             adapter.notifyDataSetChanged();
 
@@ -107,16 +115,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             @Override
             public void onClick(View v) {
                 //   Toast.makeText(getApplicationContext(),App.getInstance().getstrNickname()+"ddd", Toast.LENGTH_LONG).show();
-//                Toast.makeText(getApplicationContext(), "정상적으로 로그아웃되었습니다.", Toast.LENGTH_SHORT).show();
-//
-//                UserManagement.getInstance().requestLogout(new LogoutResponseCallback() {
-//                    @Override
-//                    public void onCompleteLogout() {
-//                        Intent intent=new Intent(MainActivity.this, LoginActivity.class);
-//                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                        startActivity(intent);
-//                    }
-//                });
+                Toast.makeText(getApplicationContext(), "정상적으로 로그아웃되었습니다.", Toast.LENGTH_SHORT).show();
+
+                UserManagement.getInstance().requestLogout(new LogoutResponseCallback() {
+                    @Override
+                    public void onCompleteLogout() {
+                        Intent intent=new Intent(MainActivity.this, LoginActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                    }
+                });
             }
         });
     }
@@ -518,6 +526,71 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
 
             return result;
+        }
+    }
+
+    public class BoardAdapter extends BaseAdapter {
+
+        private ArrayList<BoardItem> boardItems = new ArrayList<BoardItem>();
+
+        @Override
+        public int getCount() {
+            return boardItems.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return boardItems.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            final Context context = parent.getContext();
+
+            if(convertView == null) {
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.board_item, parent, false);
+            }
+
+            final BoardItem item = boardItems.get(position);
+
+            TextView title_tv =convertView.findViewById(R.id.board_title);
+            ImageView image = convertView.findViewById(R.id.board_image);
+            TextView body_tv = convertView.findViewById(R.id.board_body);
+            Button rpl_btn = convertView.findViewById(R.id.board_rpl_btn);
+
+            title_tv.setText(item.getTitle());
+            image.setImageResource(R.drawable.one);
+            body_tv.setText(item.getBody());
+
+            rpl_btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, ReplyActivity.class);
+                    intent.putExtra("board_id", item.getId());
+
+                    startActivity(intent);
+                }
+            });
+
+            return convertView;
+        }
+
+        public void addItem(String id, String title, String imageSrc, String body) {
+            BoardItem item = new BoardItem();
+
+            item.setId(id);
+            item.setTitle(title);
+            item.setImageSrc(imageSrc);
+            item.setBody(body);
+
+            boardItems.add(item);
         }
     }
 }

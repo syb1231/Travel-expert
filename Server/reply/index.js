@@ -1,14 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const tables = require('../tables')
+const tables = require('../tables');
+const board = require('../tables/board');
 
 module.exports = router;
 
 router.post('/upload', (req, res) => {
     body = req.body
 
-    tables.Board.create({
-        title: body.title,
+    tables.Reply.create({
+        board_id: body.board_id,
         body: body.body,
         author: body.author
     }).then( () => {
@@ -18,29 +19,20 @@ router.post('/upload', (req, res) => {
 
         res.status(404).json({result : 'Fail'})
     })
+
+
 })
 
-router.get('/loadAll', (req, res) => {
+router.get('/loadAll/:board_id', (req, res) => {
 
-    tables.Board.findAll().then( (results) => {
-        res.status(200).json(results)
-    }).catch( (err) => {
-        console.log(err)
+    board_id = req.params.board_id
 
-        res.status(404).json({result : 'Fail'})
-    })
-})
-
-router.get('/loadAll/:id', (req, res) => {
-
-    id = req.params.id
-
-    tables.Board.findOne({
+    tables.Reply.findAll({
         where: {
-            id: id
+            board_id: board_id
         }
-    }).then( (result) => {
-        res.status(200).json(result)
+    }).then( (results) => {
+        res.status(200).json(results)
     }).catch( (err) => {
         console.log(err)
 
