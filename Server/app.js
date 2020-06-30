@@ -9,6 +9,7 @@ app.use(bodyParser.urlencoded({extended: true}))
 
 app.use('/board', require('./board'))
 app.use('/reply', require('./reply'))
+app.use('/pref', require('./pref'))
 
 app.listen(port, () => {
     console.log('Connected port', port)

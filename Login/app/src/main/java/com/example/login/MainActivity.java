@@ -22,11 +22,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-
-import com.kakao.usermgmt.UserManagement;
-import com.kakao.usermgmt.callback.LogoutResponseCallback;
-import com.kakao.usermgmt.callback.UnLinkResponseCallback;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,8 +31,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
@@ -45,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     String msg;
     ListView listView;
     BoardAdapter adapter;
-    DatabaseHandler handler;
+    ArrayList<Integer> prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,24 +50,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /* 내장 디비 pref 받아오기 */
-        SQLiteDatabase db;
-        handler = new DatabaseHandler(this);
+        prefs = getPref();
 
-        db = handler.getReadableDatabase();
-        Cursor cursor = db.query("userinfo", new String[] {"userid", "code"}, null, null, null, null, null);
-
-        String userid = "";
-        String code = "";
-        while(cursor.moveToNext()){
-            userid = cursor.getString(0);
-            code = cursor.getString(1);
+        for(int i = 0; i < prefs.size(); i++){
+            System.out.println("prefs"+prefs.get(i));
         }
-
-        System.out.println("userid :" + userid + "code: " + code);
-
-        cursor.close();
-        handler.close();
 
         // 전역변수 값 받아오기
         String globalstrNickname=App.getInstance().getstrNickname();
@@ -83,12 +67,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         adapter = new BoardAdapter();
         listView.setAdapter(adapter);
 
-//        adapter.addItem("asdas", "asdasd", "aasdasd");
-//        adapter.addItem("a12sdas", "asddsa", "asdasdasd");
-//        adapter.addItem("as232das", "asdas", "aasasasdsaddasd");
-//        adapter.addItem("232", "asdsa", "asdsad");
-//        adapter.addItem("323", "asdasd", "asdsad");
-
         locationListener.onLocationChanged(getLocation());
         if(msg==null)
             Toast.makeText(getApplicationContext(), "내용없음.", Toast.LENGTH_LONG).show();
@@ -97,7 +75,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         Button btnLogout=findViewById(R.id.btnLogout);
 
         try {
-            String result = new HTTPLoadBoard().execute().get();
+            String json="";
+
+            JSONObject jsonObject=new JSONObject();
+            jsonObject.accumulate("userid", App.getInstance().getstrNickname());
+
+            json=jsonObject.toString();
+
+            String result = new HTTPLoadBoard().execute(json).get();
 
             JSONArray arr = new JSONArray(result);
 
@@ -117,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
         btnLogout.setOnClickListener(new Button.OnClickListener() {
             @Override
@@ -404,47 +388,110 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     }
 
-    public String getPref() {
-        /* 내장 디비 pref 받아오기 */
-        SQLiteDatabase db;
-        handler = new DatabaseHandler(this);
+    public ArrayList<Integer> getPref(){
 
-        db = handler.getReadableDatabase();
-        Cursor cursor = db.query("userinfo", new String[] {"code"}, null, null, null, null, null);
+        ArrayList<Integer> rs = new ArrayList<Integer>();
 
-        String pref = "";
-        while(cursor.moveToNext()){
-            pref = cursor.getString(0);
+        try {
+            String json="";
+
+            JSONObject jsonObject=new JSONObject();
+            jsonObject.accumulate("userid", App.getInstance().getstrNickname());
+
+            json=jsonObject.toString();
+
+            String result = new HTTPLoadPref().execute(json).get();
+
+            JSONArray arr = new JSONArray(result);
+
+            for(int i=0; i<arr.length(); i++){
+                JSONObject object = arr.getJSONObject(i);
+
+                int pref = object.getInt("pref_code");
+                rs.add(pref);
+            }
+            adapter.notifyDataSetChanged();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        System.out.println("asd: " + pref);
-
-        cursor.close();
-        handler.close();
-
-        return pref;
+        return rs;
     }
 
-    private class HTTPLoadBoard extends AsyncTask<Void, Void, String> {
+    private class HTTPLoadBoard extends AsyncTask<String, Void, String> {
 
-        private String url = "http://172.30.1.42:3000/board/loadAll/";
+        private String url = "http://155.230.248.161:3000/board/loadAll";
 
         @Override
-        protected String doInBackground(Void... voids) {
-
-            String pref = getPref();
+        protected String doInBackground(String... params) {
 
             String result = "";
-
             try {
-                URL url = new URL(this.url + pref);
+                URL url = new URL(this.url);
 
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestProperty("Accept", "application/json");
                 conn.setRequestProperty("Content-Type", "application/json");
-                conn.setRequestMethod("GET");
+                conn.setRequestMethod("POST");
 
                 conn.setDoInput(true);
+                conn.setDoOutput(true);
+
+                OutputStream os = conn.getOutputStream();
+                os.write(params[0].getBytes("utf-8"));
+                os.flush();
+
+                if(conn.getResponseCode() == 200) {
+
+                    InputStream is = conn.getInputStream();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    byte[] byteBuffer = new byte[1024];
+                    byte[] byteData = null;
+                    int nLength = 0;
+                    while((nLength = is.read(byteBuffer, 0, byteBuffer.length)) != -1) {
+                        baos.write(byteBuffer, 0, nLength);
+                    }
+                    byteData = baos.toByteArray();
+
+                    result = new String(byteData);
+
+                } else {
+                    result = "Fail";
+                }
+
+                conn.disconnect();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return result;
+        }
+    }
+
+    private class HTTPLoadPref extends AsyncTask<String, Void, String> {
+
+        private String url = "http://155.230.248.161:3000/pref/index";
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String result = "";
+            try {
+                URL url = new URL(this.url);
+
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestMethod("POST");
+
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+
+                OutputStream os = conn.getOutputStream();
+                os.write(params[0].getBytes("utf-8"));
+                os.flush();
 
                 if(conn.getResponseCode() == 200) {
 

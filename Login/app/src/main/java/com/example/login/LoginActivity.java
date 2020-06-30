@@ -51,10 +51,10 @@ public class LoginActivity extends AppCompatActivity {
                         if(success) {
                             //서버로 전송
 
-                            Toast.makeText(getApplicationContext(), "여행어떄 에 가입하신 것을 환엽합니다!", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "여행어때 에 가입하신 것을 환엽합니다!", Toast.LENGTH_LONG).show();
                         }
                         else{
-                            Toast.makeText(getApplicationContext(), "여행어떄 가입 실패!!", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "여행어때 가입 실패!!", Toast.LENGTH_LONG).show();
                         }
                     }
                     catch (JSONException e){
@@ -63,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 }
             };
-            Toast.makeText(getApplicationContext(), "여행어떄!", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "여행어때!", Toast.LENGTH_LONG).show();
             String globalstrNickname=  App.getInstance().getstrNickname();
             String globalstrEmail=  App.getInstance().getstrEmail();
             String globalstrAgeRange=  App.getInstance().getstrAgeRange();

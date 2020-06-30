@@ -23,45 +23,57 @@ router.post('/upload', (req, res) => {
     })
 })
 
-router.get('/loadAll/:pref', (req, res) => {
+router.post('/loadAll', (req, res) => {
 
-    pref = req.params.pref
+    userid = req.body.userid
+    var pref_arr = new Array()
+    
 
-    var result = new Array()
-
-    tables.Board.findAll({
+    tables.Pref.findAll({
         where: {
-            pref: pref
+            userid: userid
         }
-    }).then( (results1) => {
+    }).then( (results) => {
 
-        for(var i = 0; i < results1.length; i++){
-            result.push(results1[i].dataValues)
+        for(var i = 0; i < results.length; i++){
+            pref_arr.push(results[i].dataValues.pref_code)
         }
 
-        tables.Board.findAll({
-            where: {
-                pref: { [Op.not] : pref }
+        tables.Board.findAll().then( (results1) => {
+
+            var arr1 = new Array()
+
+            var arr2 = new Array() // pref
+            var arr3 = new Array() // except
+
+            n = results1.length
+
+            for(var i = 0; i< n; i++){
+                arr1.push(results1[i].dataValues)
             }
-        }).then( (results2) => {
+
+            while(n != 0){
+                x = arr1.pop()
+
+                if(pref_arr.indexOf(x.pref) != -1){
+                    arr2.push(x)
+                }else{
+                    arr3.push(x)
+                }                
+
+                n = arr1.length
+            }
             
-            for(var i = 0; i < results2.length; i++){
-                result.push(results2[i].dataValues)
-            }
-
-            console.log(result)
+            result = arr2.concat(arr3)
 
             res.status(200).json(result)
-        }).catch( (err) => {
-            console.log(err)
-    
-            res.status(404).json({result : 'Fail'})
         })
     }).catch( (err) => {
         console.log(err)
 
         res.status(404).json({result : 'Fail'})
     })
+
 
 })
 

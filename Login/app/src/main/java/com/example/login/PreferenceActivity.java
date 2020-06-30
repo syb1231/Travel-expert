@@ -1,23 +1,10 @@
 package com.example.login;
 
-
-
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewParent;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
-
-import com.kakao.util.OptionalBoolean;
 
 
 public class PreferenceActivity extends AppCompatActivity {
@@ -29,9 +16,6 @@ public class PreferenceActivity extends AppCompatActivity {
          Intent intent1 =  getIntent();
          super.onCreate(savedInstanceState);
          setContentView(R.layout.activity_preference);
-         viewPager =(ViewPager) findViewById(R.id.view);
-         adapter = new Adapter(this);
-         viewPager.setAdapter(adapter);
 
          Intent intent =  getIntent();
          App myApp = (App) getApplication();
@@ -42,16 +26,11 @@ public class PreferenceActivity extends AppCompatActivity {
          strAgeRange = intent.getStringExtra("ageRange");
          strGender = intent.getStringExtra("gender");
 
-         /* 내장 디비 */
-         SQLiteDatabase db;
-         ContentValues row;
-         DatabaseHandler handler = new DatabaseHandler(this);
-         db = handler.getWritableDatabase();
-         row = new ContentValues();
-         row.put("userid", strNickname);
-         row.put("code", 2); //선호하는 그림 눌렀을때
-         db.replace("userinfo", null, row);
-         handler.close();
+         viewPager =(ViewPager) findViewById(R.id.view);
+         adapter = new Adapter(this, strNickname);
+         viewPager.setAdapter(adapter);
+
+
 
 // 전역변수 설정
          App.getInstance().setstrNickname(strNickname);

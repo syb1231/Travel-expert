@@ -12,5 +12,6 @@ db.Sequelize = Sequelize;
 
 db.Board = require('./board')(sequelize, Sequelize)
 db.Reply = require('./reply')(sequelize, Sequelize)
+db.Pref = require('./pref')(sequelize, Sequelize)
 
 module.exports = db;
