@@ -10,9 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RegisterRequest extends StringRequest {
-    //서버 url 설정
     final static private  String URL ="http://tjdudqls9098.dothome.co.kr/Register.php";
     private Map<String,String> map;
+    //서버 url 설정
 
 
 

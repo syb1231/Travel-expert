@@ -4,7 +4,7 @@ public class BoardItem {
 
     String id;
     String title;
-    String imageSrc;
+    int imageSrc;
     String body;
 
     public String getId() {
@@ -23,11 +23,9 @@ public class BoardItem {
         this.title=title;
     }
 
-    public String getImageSrc() {
-        return imageSrc;
-    }
+    public int getImageSrc() { return imageSrc; }
 
-    public void setImageSrc(String imageSrc) {
+    public void setImageSrc(int imageSrc) {
         this.imageSrc=imageSrc;
     }
 

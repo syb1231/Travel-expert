@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -51,18 +52,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     ListView listView;
     BoardAdapter adapter;
     ArrayList<Integer> prefs;
+    String userinfo;
+    TextView textView4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        prefs = getPref();
-
-        for(int i = 0; i < prefs.size(); i++){
-            System.out.println("prefs"+prefs.get(i));
-        }
 
         // 전역변수 값 받아오기
         String globalstrNickname=App.getInstance().getstrNickname();
@@ -76,8 +72,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         listView.setAdapter(adapter);
 
         locationListener.onLocationChanged(getLocation());
-        if(msg==null)
-            Toast.makeText(getApplicationContext(), "내용없음.", Toast.LENGTH_LONG).show();
+        if(msg==null);
+           // Toast.makeText(getApplicationContext(), "내용없음.", Toast.LENGTH_LONG).show();
         else
             Toast.makeText(getApplicationContext(),  msg, Toast.LENGTH_LONG).show();
         Button btnLogout=findViewById(R.id.btnLogout);
@@ -99,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
                 String id = object.getString("id");
                 String title = object.getString("title");
-                String image = object.getString("image");
+                int image = object.getInt("image");
                 String body = object.getString("body");
                 int pref = object.getInt("pref");
 
@@ -127,6 +123,27 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 });
             }
         });
+
+        userinfo = "";
+
+        prefs = getPref();
+        boolean check=false;
+        for(int i = 0; i < prefs.size(); i++){
+            if(check==true) break;
+            switch (prefs.get(i)){
+                case 0:
+                    userinfo += "#사진명소 #유적지 ";  check=true; break;
+                case 1:
+                    userinfo += "#바다 #힐링 "; check=true; break;
+            }
+        }
+        userinfo += "를 좋아하는";
+        userinfo += App.getInstance().getstrNickname() + "님 !!";
+        TextView textView3 = findViewById(R.id.user_information) ;
+        textView3.setText(userinfo);
+
+        textView4 = findViewById(R.id.user_weather);
+
     }
 
 
@@ -222,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         @Override
         public void onLocationChanged(Location location) {
 //            Toast("onLocationChanged");
-            //Toast.makeText(getApplicationContext(), "로케이션 정상적인 실행.", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(getApplicationContext(), "로케이션 정상적인 실행.", Toast.LENGTH_SHORT).show();
             getWeatherData( location.getLatitude() , location.getLongitude() );
 
         }
@@ -335,9 +352,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 }
                 description = transferWeather( description );
                 //final String msg = description + " 습도 " + humidity +"%, 풍속 " + speed +"m/s" + " 온도 현재:"+nowTemp+" / 최저:"+ minTemp + " / 최고:" + maxTemp;
-                msg = description + " 습도 " + humidity +"%, 풍속 " + speed +"m/s" + " 온도 현재:"+nowTemp+" / 최저:"+ minTemp + " / 최고:" + maxTemp;
+                msg = "오늘의 날씨는 "+description +"\n" +" 습도 " + humidity +"%, 풍속 " + speed +"m/s" + " 온도 현재:"+nowTemp+" / 최저:"+ minTemp + " / 최고:" + maxTemp +"이며"+"\n"+ "분석된 추천 여행지 목록 입니다!";
 
 
+                textView4.setText(msg);
+
+               // receiveUseTask
+               // Toast.makeText(getApplicationContext(), "msg"+msg, Toast.LENGTH_LONG).show();
 
             }
 
@@ -429,7 +450,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     private class HTTPLoadBoard extends AsyncTask<String, Void, String> {
 
-        private String url = "http://155.230.248.161:3000/board/loadAll";
+        private String url = "http://155.230.248.31:3000/board/loadAll";
 
         @Override
         protected String doInBackground(String... params) {
@@ -480,7 +501,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     private class HTTPLoadPref extends AsyncTask<String, Void, String> {
 
-        private String url = "http://155.230.248.161:3000/pref/index";
+        private String url = "http://155.230.248.31:3000/pref/index";
 
         @Override
         protected String doInBackground(String... params) {
@@ -532,6 +553,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public class BoardAdapter extends BaseAdapter {
 
         private ArrayList<BoardItem> boardItems = new ArrayList<BoardItem>();
+        private int[] images = {R.drawable.qqq,R.drawable.ggg,R.drawable.ppp,R.drawable.ttt,R.drawable.jjj,R.drawable.nnn,R.drawable.bbb,R.drawable.mmm,R.drawable.iii,R.drawable.hhh}; //이미지
 
         @Override
         public int getCount() {
@@ -565,8 +587,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             TextView body_tv = convertView.findViewById(R.id.board_body);
             Button rpl_btn = convertView.findViewById(R.id.board_rpl_btn);
 
+
             title_tv.setText(item.getTitle());
-            image.setImageResource(R.drawable.one);
+            //image.setImageResource(R.drawable.one); //이미지 소스
+            image.setImageResource(images[item.getImageSrc()]);
             body_tv.setText(item.getBody());
 
             rpl_btn.setOnClickListener(new View.OnClickListener() {
@@ -582,7 +606,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             return convertView;
         }
 
-        public void addItem(String id, String title, String imageSrc, String body) {
+        public void addItem(String id, String title, int imageSrc, String body) {
             BoardItem item = new BoardItem();
 
             item.setId(id);
@@ -593,5 +617,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             boardItems.add(item);
         }
     }
+
 }
 

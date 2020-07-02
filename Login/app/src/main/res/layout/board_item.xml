@@ -3,29 +3,66 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_marginBottom="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/twotwo"
+    >
 
-    <TextView
-        android:id="@+id/board_title"
-        android:layout_width="match_parent"
-        android:layout_height="43dp"
-        android:gravity="center|bottom"
-        android:textSize="40sp" />
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/board_image" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/board_body" />
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:background="@drawable/cornertwo"
 
+            android:textColor="#696969"
+
+            >
+
+            <TextView
+                android:id="@+id/board_title"
+                android:layout_width="match_parent"
+
+                android:layout_height="35dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="@font/fontb"
+                android:gravity="center|bottom"
+                android:textColor="#000000"
+                android:textSize="30sp" />
+
+            <ImageView
+                android:id="@+id/board_image"
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content">
+
+            </ImageView>
+
+
+
+            <TextView
+                android:id="@+id/board_body"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/fontb"
+                android:text="사진정보 "
+                android:layout_gravity="bottom|center"
+                android:textColor="#000000" />
+
+
+        </FrameLayout>
     <Button
         android:id="@+id/board_rpl_btn"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="댓글 달기" />
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/corner"
+        android:fontFamily="@font/fonta"
+        android:text="댓글달기"
+        android:textColor="#000000" />
+
+
 
 </LinearLayout>

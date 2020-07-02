@@ -32,8 +32,9 @@ public class Adapter extends PagerAdapter {
     private LayoutInflater inflater;
     private Context context;
     private String userid;
+    private ArrayList<Adapteritem> adapteritems = new ArrayList<Adapteritem>();
 
-    public  Adapter(Context context, String userid){
+    public Adapter(Context context, String userid){
         this.context = context;
         this.userid = userid;
     }
@@ -58,79 +59,21 @@ public class Adapter extends PagerAdapter {
         TextView textView=(TextView)v.findViewById(R.id.textView);
         TextView textView1=(TextView)v.findViewById(R.id.textView1);
         TextView textView2=(TextView)v.findViewById(R.id.textView2);
+
         imageView.setImageResource(images[position]);
 
         textView.setText("선호하는 여행지를 눌러주세요");
-        switch(position){
-            case 0:
-                textView1.setText("경주 보문정");
-                textView2.setText("#국내  #힐링  #관광  #역사");
-                break;
-            case 1:
 
-                textView1.setText("일본 규슈");
-                textView2.setText("#해외  #힐링  #온천 ");
-                break;
-            case 2:
+        Adapteritem item = adapteritems.get(position);
 
-                textView1.setText("광한루");
-                textView2.setText("#국내 #역사 ");
-                break;
-            case 3:
-
-                textView1.setText("조지아");
-                textView2.setText("#해외  #배낭여행  #관광 #액티비티 ");
-                break;
-            case 4:
-
-                textView1.setText("남해 가천 다랭이마을");
-                textView2.setText("#국내 #바다 #힐링 ");
-                break;
-             case 5:
-
-                textView1.setText(" 부산 광안대교");
-                textView2.setText("#국내  #바다  #힐링  #야경");
-                break;
-
-            case 6:
-
-                textView1.setText("코타키나발루(말레이시아)");
-                textView2.setText("#해외 #바다  #힐링  #액티비티 ");
-                break;
-            case 7:
-
-                textView1.setText("우도");
-                textView2.setText("#국내  #바다  #힐링  #관광");
-                break;
-            case 8:
-
-                textView1.setText("팔라우 우빈섬(싱가포르)");
-                textView2.setText("#해외  #바다  #힐링 ");
-                break;
-
-            case 9:
-
-                textView1.setText("세량제");
-                textView2.setText("#국내  #바다  #힐링  #사진명소");
-                break;
-
-            default:
-
-                textView1.setText("제주 협재 해수욕장");
-                textView2.setText(" #국내  #바다  #힐링");
-                break;
-
-
-        }
-
+        textView1.setText(item.getTitle());
+        textView2.setText(item.getBody());
 
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent().setClass(context,MainActivity.class);
                 context.startActivity(intent);
-
-
 
             }
         });
@@ -140,15 +83,18 @@ public class Adapter extends PagerAdapter {
 
             public void onClick(View v) {
                 // TODO Auto-generated method stub
+
+                Adapteritem item = adapteritems.get(position);
+
                 if(tb.isChecked()){
-                    System.out.println("On : " + position);
+
                     //Toast.makeText(context, "토글눌렀어1", Toast.LENGTH_LONG)';
                     try {
                         String json="";
 
                         JSONObject jsonObject=new JSONObject();
                         jsonObject.accumulate("userid", userid);
-                        jsonObject.accumulate("code", position);
+                        jsonObject.accumulate("code", item.getPref_code());
 
                         json=jsonObject.toString();
 
@@ -164,13 +110,12 @@ public class Adapter extends PagerAdapter {
 
                 }else{
                     //Toast.makeText(context, "토글눌렀어2", Toast.LENGTH_LONG);
-
                     try {
                         String json="";
 
                         JSONObject jsonObject=new JSONObject();
                         jsonObject.accumulate("userid", userid);
-                        jsonObject.accumulate("code", position);
+                        jsonObject.accumulate("code", item.getPref_code());
 
                         json=jsonObject.toString();
 
@@ -199,9 +144,21 @@ public class Adapter extends PagerAdapter {
         container.invalidate();
     }
 
+    public void addItem(String title, String body, String image, int pref_code){
+
+        Adapteritem item = new Adapteritem();
+
+        item.setTitle(title);
+        item.setBody(body);
+        item.setImage(image);
+        item.setPref_code(pref_code);
+
+        adapteritems.add(item);
+    }
+
     private class PrefCodeRequest extends AsyncTask<String, Void, Integer> {
 
-        private String url = "http://155.230.248.161:3000/pref/";
+        private String url = "http://155.230.248.31:3000/pref/";
         private String uri = "";
 
         public PrefCodeRequest(String uri) {

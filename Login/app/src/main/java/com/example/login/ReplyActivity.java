@@ -97,7 +97,7 @@ public class ReplyActivity extends AppCompatActivity {
 
     private class HTTPReplyLoad extends  AsyncTask<Void, Void, String>{
 
-        private String url = "http:///155.230.248.161:3000/reply/loadAll/";
+        private String url = "http:///155.230.248.31:3000/reply/loadAll/";
         private String board_id;
 
         public HTTPReplyLoad(String board_id){
@@ -146,7 +146,7 @@ public class ReplyActivity extends AppCompatActivity {
 
     private class HTTPReplyUpload extends AsyncTask<String, Void, Void>{
 
-        private String url = "http://155.230.248.161:3000/reply/upload";
+        private String url = "http://155.230.248.31:3000/reply/upload";
         @Override
         protected Void doInBackground(String... params) {
 
